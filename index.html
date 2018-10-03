@@ -29,6 +29,37 @@
         </script>
 
         <script type="text/javascript">
+        function matrixScaling(matrix, size) {
+            for (var i = 0; i < matrix.length; i++) {
+                matrix[i] *= size
+            }
+
+            return matrix
+        }
+
+        function matrixTranslating(matrix, x, y, z) {
+            for (var i = 0; i < matrix.length / 3; i++) {
+                matrix[i * 3] += x
+                matrix[i * 3 + 1] += y
+                matrix[i * 3 + 2] += z
+            }
+
+            return matrix
+        }
+
+        function matrixRotating(matrix, derajatPutar, xCore, yCore) {
+            degRad = derajatPutar * (Math.PI / 180)
+            for (var i = 0; i < matrix.length / 3; i++) {
+                var x = matrix[i * 3] - xCore
+                var y = matrix[i * 3 + 2] - yCore
+                matrix[i * 3] = Math.cos(degRad) * (x) - Math.sin(degRad) * (y) + xCore
+                matrix[i * 3 + 2] = Math.sin(degRad) * (x) + Math.cos(degRad) * (y) + yCore
+            }
+            return matrix
+        }
+        </script>
+
+        <script type="text/javascript">
             var gl
 
             function initGL(canvas) {
@@ -126,11 +157,12 @@
 
             var nVertexPosBuffer
             var nVertexColorBuffer
+            var nVertex = []
             function drawLetterN() {
                 nVertexPosBuffer = gl.createBuffer()
                 gl.bindBuffer(gl.ARRAY_BUFFER, nVertexPosBuffer)
 
-                var nVertex = [
+                nVertex = [
                     -1.0, -1.0, 0.0,
                     -0.5, -1.0, 0.0,
                     -1.0,  1.0, 0.0,
@@ -142,7 +174,7 @@
                      1.0,  1.0, 0.0,
                 ]
 
-                nVertex = matrixScaling(nVertex, 0.5)
+                nVertex = matrixScaling(nVertex, 0.25)
 
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nVertex), gl.STATIC_DRAW)
                 nVertexPosBuffer.itemSize = 3
@@ -220,17 +252,12 @@
                 mat4.identity(mvMatrix)
                 mat4.translate(mvMatrix, mvMatrix, [0.0, 0.0, -4.0])
 
-                drawBoxWireframe()
-                drawLetterN()
-
                 mvPushMatrix()
+                letterMove()
                 mat4.rotate(mvMatrix, mvMatrix, glMatrix.toRadian(rTri), [0.0, 1.0, 0.0])
-                
-                gl.bindBuffer(gl.ARRAY_BUFFER, nVertexPosBuffer)
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, nVertexPosBuffer.itemSize, gl.FLOAT, false, 0, 0)
                 gl.bindBuffer(gl.ARRAY_BUFFER, nVertexColorBuffer)
                 gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, nVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0)
-                setMatrixUniforms()
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, nVertexPosBuffer.numItems)
                 mvPopMatrix()
 
@@ -254,12 +281,19 @@
                 lastTime = timeNow
             }
 
-            function matrixScaling(mat, size) {
-                for (var i=0;i < mat.length; i++) {
-                    mat[i]*=size
-                }
-
-                return mat
+            var cenX = 0.0
+            var cenY = 0.0
+            var cenZ = 0.0
+            var turn = [1, 1, 1]
+            var lrTurn = 1.0
+            function letterMove() {
+                gl.bindBuffer(gl.ARRAY_BUFFER, nVertexPosBuffer)
+                nVertex = matrixTranslating(nVertex, 0.5 * 0.01, -0.5 * 0.01, 1 * 0.01)
+                cenX += (1 * 0.01)
+                cenY += (1 * 0.01)
+                cenZ += (1 * 0.01)
+                nVertex = matrixRotating(nVertex, lrTurn * 1.5, cenX, cenZ)
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nVertex), gl.STATIC_DRAW)
             }
 
             function tick() {
@@ -272,6 +306,8 @@
                 var canvas = document.getElementById('mycanvas')
                 initGL(canvas)
                 initShaders()
+                drawBoxWireframe()
+                drawLetterN()
                 //initBuffers()
                 gl.clearColor(0.0, 0.0, 0.0, 1.0)
                 gl.enable(gl.DEPTH_TEST)
