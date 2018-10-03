@@ -225,31 +225,82 @@ function animate() {
     lastTime = timeNow
 }
 
-var cenX = 0.0
-var cenY = 0.0
-var cenZ = 0.0
-var turn = [1, 1, 1]
+var center = [0, 0, 0]
+var pos = [0, 0, 0]
 var lrTurn = 1.0
+var currentPressedKeys = {}
+
+function handleKeyDown(event) {
+    currentPressedKeys[event.keyCode] = true
+}
+
+function handleKeyUp(event) {
+    currentPressedKeys[event.keyCode] = false
+}
+
+function handleKeys() {
+    if (currentPressedKeys[82]) {
+        // R
+        pos = [0, 0, 0]
+        console.log("bawah");
+    }
+
+    if (currentPressedKeys[87]) {
+        // W
+        pos[2] -= 0.05
+        console.log("w");
+    }
+
+    if (currentPressedKeys[83]) {
+        // S
+        pos[2] += 0.05
+        console.log("s");
+    }
+
+    if (currentPressedKeys[37]) {
+        // Kiri
+        pos[0] -= 0.05
+        console.log("kiri");
+    }
+
+    if (currentPressedKeys[39]) {
+        // Kanan
+        pos[0] += 0.05
+        console.log("kanan");
+    }
+
+    if (currentPressedKeys[38]) {
+        // Atas
+        pos[1] += 0.05
+        console.log("atas");
+    }
+
+    if (currentPressedKeys[40]) {
+        // Bawah
+        pos[1] -= 0.05
+        console.log("bawah");
+    }
+}
 
 function nLetterMovement() {
     gl.bindBuffer(gl.ARRAY_BUFFER, nVertexPosBuffer)
-    nVertex = matrixTranslating(nVertex, turn[0] * 0.01, turn[1] * 0.01, turn[2] * 0.01)
-    cenX += (turn[0] * 0.01)
-    cenY += (turn[1] * 0.01)
-    cenZ += (turn[2] * 0.01)
-    nVertex = matrixRotating(nVertex, lrTurn * 1.5, cenX, cenZ)
+    nVertex = matrixTranslating(nVertex, pos[0] * 0.01, pos[1] * 0.01, pos[2] * 0.01)
+    center[0] += (pos[0] * 0.01)
+    center[1] += (pos[1] * 0.01)
+    center[2] += (pos[2] * 0.01)
+    nVertex = matrixRotating(nVertex, lrTurn * 1.5, center[0], center[2])
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nVertex), gl.STATIC_DRAW)
 
-    console.log(nVertex);
+    //console.log(nVertex);
 }
 
 var pointArr = [0, 15, 18, 21, 33, 45]
 
 function cekBoundary() {
-    for (var i = 0; i < turn.length; i++) {
+    for (var i = 0; i < pos.length; i++) {
         for (var k = 0; k < pointArr.length; k++) {
             if (nVertex[pointArr[k] + i] >= 1 || nVertex[pointArr[k] + i] <= -1) {
-                turn[i] *= -1
+                pos[i] *= -1
                 lrTurn *= -1
                 break
             }
@@ -260,6 +311,7 @@ function cekBoundary() {
 function tick() {
     requestAnimationFrame(tick)
     drawScene()
+    handleKeys()
     animate()
 }
 
@@ -272,6 +324,9 @@ function webGLStart() {
     //initBuffers()
     gl.clearColor(0.0, 0.0, 0.0, 1.0)
     gl.enable(gl.DEPTH_TEST)
+
+    document.onkeydown = handleKeyDown
+    document.onkeyup = handleKeyUp
 
     tick()
 }
