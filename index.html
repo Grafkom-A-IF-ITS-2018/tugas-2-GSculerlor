@@ -223,12 +223,16 @@
                 drawBoxWireframe()
                 drawLetterN()
 
+                mvPushMatrix()
+                mat4.rotate(mvMatrix, mvMatrix, glMatrix.toRadian(rTri), [0.0, 1.0, 0.0])
+                
                 gl.bindBuffer(gl.ARRAY_BUFFER, nVertexPosBuffer)
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, nVertexPosBuffer.itemSize, gl.FLOAT, false, 0, 0)
                 gl.bindBuffer(gl.ARRAY_BUFFER, nVertexColorBuffer)
                 gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, nVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0)
                 setMatrixUniforms()
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, nVertexPosBuffer.numItems)
+                mvPopMatrix()
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexPosBuffer)
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, boxVertexPosBuffer.itemSize, gl.FLOAT, false, 0, 0)
