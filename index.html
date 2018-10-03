@@ -124,6 +124,41 @@
                 gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix)
             }
 
+            var nVertexPosBuffer
+            var nVertexColorBuffer
+            function drawLetterN() {
+                nVertexPosBuffer = gl.createBuffer()
+                gl.bindBuffer(gl.ARRAY_BUFFER, nVertexPosBuffer)
+
+                var nVertex = [
+                    -1.0, -1.0, 0.0,
+                    -0.5, -1.0, 0.0,
+                    -1.0,  1.0, 0.0,
+                    -0.5,  1.0, 0.0,
+
+                     0.5, -1.0, 0.0,
+                     1.0, -1.0, 0.0,
+                     0.5,  1.0, 0.0,
+                     1.0,  1.0, 0.0,
+                ]
+
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nVertex), gl.STATIC_DRAW)
+                nVertexPosBuffer.itemSize = 3
+                nVertexPosBuffer.numItems = nVertex.length/3
+
+                nVertexColorBuffer = gl.createBuffer()
+                gl.bindBuffer(gl.ARRAY_BUFFER, nVertexColorBuffer)
+
+                var nWarna = []
+                for (var i = 0; i < nVertexPosBuffer.numItems; i++) {
+                    nWarna = nWarna.concat([0.5, 1, 0.1, 0.75])
+                }
+
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nWarna), gl.STATIC_DRAW)
+                nVertexColorBuffer.itemSize = 4
+                nVertexColorBuffer.numItems = nVertexPosBuffer.numItems
+            }
+
             var boxVertexPosBuffer
             var boxVertexColorBuffer
             function drawBoxWireframe() {
@@ -156,8 +191,6 @@
                     -1.0, -1.0, -1.0
                 ]
 
-                //boxVertices = matrixScaling(boxVertices, 3)
-
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(boxVertices), gl.STATIC_DRAW)
                 boxVertexPosBuffer.itemSize = 3
                 boxVertexPosBuffer.numItems = boxVertices.length/3
@@ -185,6 +218,14 @@
                 mat4.translate(mvMatrix, mvMatrix, [0.0, 0.0, -4.0])
 
                 drawBoxWireframe()
+                drawLetterN()
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, nVertexPosBuffer)
+                gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, nVertexPosBuffer.itemSize, gl.FLOAT, false, 0, 0)
+                gl.bindBuffer(gl.ARRAY_BUFFER, nVertexColorBuffer)
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, nVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0)
+                setMatrixUniforms()
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, nVertexPosBuffer.numItems)
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexPosBuffer)
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, boxVertexPosBuffer.itemSize, gl.FLOAT, false, 0, 0)
