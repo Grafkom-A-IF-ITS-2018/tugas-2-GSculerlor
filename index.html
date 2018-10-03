@@ -1,6 +1,7 @@
 <html>
+
     <head>
-        <title>Tugas 1</title>
+        <title>Tugas 2</title>
         <meta http-equiv="content-type" content="text/html" charset="ISO-8859-1">
 
         <script type="text/javascript" src="gl-matrix-min.js"></script>
@@ -8,10 +9,11 @@
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
             varying vec4 vColor;
+
             void main(void) {
                 gl_FragColor = vColor;
             }
-            </script>
+        </script>
 
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
@@ -19,6 +21,7 @@
             uniform mat4 uMVMatrix;
             uniform mat4 uPMatrix;
             varying vec4 vColor;
+
             void main(void) {
                 gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
                 vColor = aVertexColor;
@@ -27,15 +30,13 @@
 
         <script type="text/javascript">
             var gl
+
             function initGL(canvas) {
                 try {
                     gl = canvas.getContext('webgl')
                     gl.viewportWidth = canvas.width
                     gl.viewportHeight = canvas.height
-                } catch (e) {
-
-                }
-
+                } catch (e) {}
                 if (!gl) {
                     alert('Tidak bisa menginisialisasi WebGL')
                 }
@@ -81,11 +82,12 @@
             function initShaders() {
                 var fragmentShader = getShader(gl, 'shader-fs')
                 var vertexShader = getShader(gl, 'shader-vs')
-
                 shaderProgram = gl.createProgram()
+
                 gl.attachShader(shaderProgram, fragmentShader)
                 gl.attachShader(shaderProgram, vertexShader)
                 gl.linkProgram(shaderProgram)
+
                 if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
                     alert('Tidak bisa menginisialisasi shaders')
                 }
@@ -122,20 +124,55 @@
                 gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix)
             }
 
-            var boxVertexPositionBuffer
+            var boxVertexPosBuffer
             var boxVertexColorBuffer
-
             function drawBoxWireframe() {
-                boxVertexPositionBuffer = gl.createBuffer()
-                gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexPositionBuffer)
-
-                var boxWireframe = [
-
+                boxVertexPosBuffer = gl.createBuffer()
+                gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexPosBuffer)
+                var boxVertices = [
+                    1.0, 1.0, 1.0,
+                    1.0, -1.0, 1.0,
+                    -1.0, 1.0, 1.0,
+                    -1.0, -1.0, 1.0,
+                    -1.0, -1.0, 1.0,
+                    1.0, -1.0, 1.0,
+                    1.0, 1.0, 1.0,
+                    -1.0, 1.0, 1.0,
+                    1.0, 1.0, -1.0,
+                    1.0, -1.0, -1.0,
+                    -1.0, 1.0, -1.0,
+                    -1.0, -1.0, -1.0,
+                    -1.0, -1.0, -1.0,
+                    1.0, -1.0, -1.0,
+                    1.0, 1.0, -1.0,
+                    -1.0, 1.0, -1.0,
+                    1.0, 1.0, 1.0,
+                    1.0, 1.0, -1.0,
+                    1.0, -1.0, 1.0,
+                    1.0, -1.0, -1.0,
+                    -1.0, 1.0, 1.0,
+                    -1.0, 1.0, -1.0,
+                    -1.0, -1.0, 1.0,
+                    -1.0, -1.0, -1.0
                 ]
 
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(boxWireframe), gl.STATIC_DRAW)
-                boxVertexPositionBuffer.itemSize = 3
-                boxVertexPositionBuffer.numItems = boxWireframe.length/3
+                //boxVertices = matrixScaling(boxVertices, 3)
+
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(boxVertices), gl.STATIC_DRAW)
+                boxVertexPosBuffer.itemSize = 3
+                boxVertexPosBuffer.numItems = boxVertices.length/3
+
+                boxVertexColorBuffer = gl.createBuffer()
+                gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexColorBuffer)
+
+                var boxVerticesWarna = []
+                for (var i = 0; i < boxVertexPosBuffer.numItems; i++) {
+                    boxVerticesWarna = boxVerticesWarna.concat([1, 1, 1, 1])
+                }
+
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(boxVerticesWarna), gl.STATIC_DRAW)
+                boxVertexColorBuffer.itemSize = 4
+                boxVertexColorBuffer.numItems = boxVertexPosBuffer.numItems
             }
 
             var rTri = 0
@@ -145,18 +182,36 @@
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
                 mat4.perspective(pMatrix, glMatrix.toRadian(45), gl.viewportWidth / gl.viewportHeight, 0.1, 100.0)
                 mat4.identity(mvMatrix)
+                mat4.translate(mvMatrix, mvMatrix, [0.0, 0.0, -4.0])
+
+                drawBoxWireframe()
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexPosBuffer)
+                gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, boxVertexPosBuffer.itemSize, gl.FLOAT, false, 0, 0)
+                gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexColorBuffer)
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, boxVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0)
+                setMatrixUniforms()
+                gl.drawArrays(gl.LINES, 0, boxVertexPosBuffer.numItems)
             }
 
             var lastTime = 0
             function animate() {
                 var timeNow = new Date().getTime()
-
                 if (lastTime != 0) {
                     var elapsed = timeNow - lastTime
                     rTri += (90 * elapsed) / 1000.0
                     rSquare += (75 * elapsed) / 1000.0
                 }
+
                 lastTime = timeNow
+            }
+
+            function matrixScaling(mat, size) {
+                for (var i=0;i < mat.length; i++) {
+                    mat[i]*=size
+                }
+
+                return mat
             }
 
             function tick() {
@@ -169,7 +224,7 @@
                 var canvas = document.getElementById('mycanvas')
                 initGL(canvas)
                 initShaders()
-
+                //initBuffers()
                 gl.clearColor(0.0, 0.0, 0.0, 1.0)
                 gl.enable(gl.DEPTH_TEST)
 
