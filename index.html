@@ -30,9 +30,18 @@
 
         <script type="text/javascript" src="js/transformasi_geometri.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
+
+        <style>
+            #mycanvas {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        </style>
     </head>
 
-    <body onload="webGLStart();">
+    <body onload="webGLStart();" style="background-color: black;">
         <canvas id="mycanvas" style="border: none" width="500" height="500"></canvas>
     </body>
 </html>

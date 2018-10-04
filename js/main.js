@@ -194,9 +194,9 @@ function drawScene() {
     mat4.identity(mvMatrix)
     mat4.translate(mvMatrix, mvMatrix, [0.0, 0.0, -4.0])
 
-    mvPushMatrix()
     cekBoundary()
     nLetterMovement()
+    mvPushMatrix()
     mat4.rotate(mvMatrix, mvMatrix, glMatrix.toRadian(rTri), [0.0, 1.0, 0.0])
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, nVertexPosBuffer.itemSize, gl.FLOAT, false, 0, 0)
     gl.bindBuffer(gl.ARRAY_BUFFER, nVertexColorBuffer)
