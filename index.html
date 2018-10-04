@@ -32,7 +32,7 @@
         <script type="text/javascript" src="js/main.js"></script>
 
         <style>
-            #mycanvas {
+            .mainstage {
                 position: absolute;
                 top: 50%;
                 left: 50%;
@@ -42,6 +42,9 @@
     </head>
 
     <body onload="webGLStart();" style="background-color: black;">
-        <canvas id="mycanvas" style="border: none" width="500" height="500"></canvas>
+        <div class="mainstage">
+            <canvas id="mycanvas" style="border: none" width="500" height="500"></canvas>
+            <p style="color: white">Kontrol: Keyboard arah untuk merubah arah gerak letter</p>
+        </div>
     </body>
 </html>

@@ -125,7 +125,7 @@ function drawLetterN() {
 
     var nWarna = []
     for (var i = 0; i < nVertexPosBuffer.numItems; i++) {
-        nWarna = nWarna.concat([0.5, 1, 0.1, 0.75])
+        nWarna = nWarna.concat([i * 0.25 , i * 0.50, i * 0.75, 1])
     }
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nWarna), gl.STATIC_DRAW)
@@ -176,7 +176,7 @@ function drawBoxWireframe() {
 
     var boxVerticesWarna = []
     for (var i = 0; i < boxVertexPosBuffer.numItems; i++) {
-        boxVerticesWarna = boxVerticesWarna.concat([1, 1, 1, 1])
+        boxVerticesWarna = boxVerticesWarna.concat([i * 0.5, i * 0.75, i * 90, 1])
     }
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(boxVerticesWarna), gl.STATIC_DRAW)
@@ -239,24 +239,6 @@ function handleKeyUp(event) {
 }
 
 function handleKeys() {
-    if (currentPressedKeys[82]) {
-        // R
-        pos = [0, 0, 0]
-        console.log("bawah");
-    }
-
-    if (currentPressedKeys[87]) {
-        // W
-        pos[2] -= 0.05
-        console.log("w");
-    }
-
-    if (currentPressedKeys[83]) {
-        // S
-        pos[2] += 0.05
-        console.log("s");
-    }
-
     if (currentPressedKeys[37]) {
         // Kiri
         pos[0] -= 0.05
